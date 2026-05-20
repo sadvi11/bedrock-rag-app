@@ -1,4 +1,4 @@
-<svg width="100%" viewBox="0 0 680 530" role="img" xmlns="http://www.w3.org/2000/svg">
+<svg width="680" height="530" viewBox="0 0 680 530" role="img" xmlns="http://www.w3.org/2000/svg">
 <title>bedrock-rag-app architecture</title>
 <desc>Financial Document Q&A — Flask API routes to RAG Pipeline which calls AWS Bedrock Titan V2 and Claude Haiku 4.5, stores and retrieves from Supabase pgvector, with AWS infrastructure and GitHub Actions CI/CD</desc>
 <defs>
