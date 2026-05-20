@@ -241,3 +241,17 @@ Nokia India (5G Packet Core) → Cloud & AI Engineering
 Calgary, AB, Canada | Permanent Resident | Open to Relocation
 
 [LinkedIn](https://linkedin.com/in/sadhvi-sharma-5789a6249) | [GitHub](https://github.com/sadvi11) | [@smart_moneycanada](https://instagram.com/smart_moneycanada)
+
+## Live Screenshots
+
+![Health Endpoint](screenshots/health-endpoint.png)
+
+![Chat Answer](screenshots/chat-answer.png)
+
+![Terminal Logs](screenshots/terminal-logs.png)
+
+![Supabase pgvector](screenshots/supabase-financial-documents.png)
+
+![Bedrock Playground](screenshots/bedrock-playground.png)
+
+![Architecture](screenshots/architecture.png)
