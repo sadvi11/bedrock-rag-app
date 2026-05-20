@@ -112,7 +112,11 @@ class RAGPipeline:
         # Compute cosine similarity (Python-side — same as smart-ai-agent)
         scored = []
         for row in result.data:
-            emb = row["embedding"]; emb = __import__("json").loads(emb) if isinstance(emb, str) else emb; doc_vec = np.array(emb)
+            emb = row["embedding"]
+            if isinstance(emb, str):
+                import json
+                emb = json.loads(emb)
+            doc_vec = np.array(emb)
             norm_product = np.linalg.norm(query_vec) * np.linalg.norm(doc_vec)
             if norm_product == 0:
                 continue
@@ -181,7 +185,7 @@ class RAGPipeline:
 
     def delete_document(self, source: str) -> dict:
         """Remove all chunks for a specific document."""
-        result = self.supabase.table(TABLE).delete().eq(
+        self.supabase.table(TABLE).delete().eq(
             "source", source
         ).execute()
         return {"deleted": source, "status": "success"}
