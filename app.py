@@ -73,7 +73,7 @@ def health():
         },
         "vector_store": "Supabase pgvector",
         "documents_in_knowledge_base": doc_count,
-        "s3_bucket": "configured via Terraform",
+        "s3_bucket": S3_BUCKET if S3_BUCKET else "local mode — deploy infrastructure/main.tf for S3",
         "use_case": "Financial Document Q&A — SmartMoney Canada",
     }), 200
 
