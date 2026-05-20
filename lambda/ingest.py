@@ -5,7 +5,6 @@ Processes document → chunks → Bedrock Titan embeddings → Supabase pgvector
 """
 
 import json
-import os
 import urllib.parse
 import logging
 import boto3
