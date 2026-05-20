@@ -234,6 +234,29 @@ bedrock-rag-app/
 
 ---
 
+
+## Verified Working
+
+**Health endpoint — Bedrock models connected:**
+
+![Health Endpoint](screenshots/health-endpoint.png)
+
+**Financial Q&A — TD Bank dividend analysis:**
+
+![Chat Answer](screenshots/chat-answer.png)
+
+**RAG pipeline logs — 1024-dim embeddings, 0.789 similarity:**
+
+![Terminal Logs](screenshots/terminal-logs.png)
+
+**Supabase pgvector — vectors stored:**
+
+![Supabase](screenshots/supabase-financial-documents.png)
+
+**AWS Bedrock Playground — Claude Haiku 4.5:**
+
+![Bedrock Playground](screenshots/bedrock-playground.png)
+
 ## Author
 
 **Sadhvi Sharma** — Cloud & AI Engineer
@@ -241,34 +264,6 @@ Nokia India (5G Packet Core) → Cloud & AI Engineering
 Calgary, AB, Canada | Permanent Resident | Open to Relocation
 
 [LinkedIn](https://linkedin.com/in/sadhvi-sharma-5789a6249) | [GitHub](https://github.com/sadvi11) | [@smart_moneycanada](https://instagram.com/smart_moneycanada)
-
-## Live Screenshots
-
-![Health Endpoint](screenshots/health-endpoint.png)
-
-![Chat Answer](screenshots/chat-answer.png)
-
-![Terminal Logs](screenshots/terminal-logs.png)
-
-![Supabase pgvector](screenshots/supabase-financial-documents.png)
-
-![Bedrock Playground](screenshots/bedrock-playground.png)
-
-![Architecture](screenshots/architecture.png)
-
-## Live Screenshots
-
-![Health Endpoint](screenshots/health-endpoint.png)
-
-![Chat Answer](screenshots/chat-answer.png)
-
-![Terminal Logs](screenshots/terminal-logs.png)
-
-![Supabase pgvector](screenshots/supabase-financial-documents.png)
-
-![Bedrock Playground](screenshots/bedrock-playground.png)
-
-![Architecture](screenshots/architecture.png)
 
 ## Example — TD Bank Dividend Analysis
 
