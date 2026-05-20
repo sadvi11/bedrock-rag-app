@@ -269,3 +269,16 @@ Calgary, AB, Canada | Permanent Resident | Open to Relocation
 ![Bedrock Playground](screenshots/bedrock-playground.png)
 
 ![Architecture](screenshots/architecture.png)
+
+## Example — TD Bank Dividend Analysis
+
+Upload TD Bank earnings report and ask:
+> *"Is TD Bank a good stock for dividend income?"*
+
+The app retrieves relevant sections and answers:
+- 165+ consecutive years of uninterrupted dividends
+- $1.02 per share quarterly dividend
+- 13.9% Common Equity Tier 1 ratio
+- Net income $3.6 billion Q1 2024
+
+Powered by AWS Bedrock Titan V2 + Claude Haiku 4.5 — answers grounded in the actual document, not hallucinated.
