@@ -255,3 +255,17 @@ Calgary, AB, Canada | Permanent Resident | Open to Relocation
 ![Bedrock Playground](screenshots/bedrock-playground.png)
 
 ![Architecture](screenshots/architecture.png)
+
+## Live Screenshots
+
+![Health Endpoint](screenshots/health-endpoint.png)
+
+![Chat Answer](screenshots/chat-answer.png)
+
+![Terminal Logs](screenshots/terminal-logs.png)
+
+![Supabase pgvector](screenshots/supabase-financial-documents.png)
+
+![Bedrock Playground](screenshots/bedrock-playground.png)
+
+![Architecture](screenshots/architecture.png)
