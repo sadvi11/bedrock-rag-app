@@ -1,0 +1,117 @@
+name: CI/CD — Bedrock Financial RAG
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # ── Lint & Test ───────────────────────────────────────────────────────────
+  lint-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt flake8 pytest
+
+      - name: Lint — flake8
+        run: flake8 . --max-line-length=100 --exclude=lambda_build,infrastructure
+
+      - name: Run tests
+        run: pytest tests/ -v
+        continue-on-error: true    # tests require AWS/Supabase credentials
+
+  # ── Build Lambda Package ─────────────────────────────────────────────────
+  build-lambda:
+    name: Build Lambda Package
+    runs-on: ubuntu-latest
+    needs: lint-test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Build Lambda zip
+        run: |
+          mkdir -p lambda_build
+          pip install -r requirements.txt -t lambda_build/
+          cp lambda/ingest.py lambda_build/
+          cp rag.py lambda_build/
+          cp bedrock_client.py lambda_build/
+          cd lambda_build && zip -r ../lambda.zip . -x "*.pyc" -x "__pycache__/*"
+          echo "Lambda package size: $(du -sh ../lambda.zip | cut -f1)"
+
+      - name: Upload Lambda artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: lambda-package
+          path: lambda.zip
+
+  # ── Deploy via Terraform ─────────────────────────────────────────────────
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+    needs: build-lambda
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Lambda artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: lambda-package
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        working-directory: infrastructure
+        run: terraform init
+
+      - name: Terraform plan
+        working-directory: infrastructure
+        run: |
+          terraform plan \
+            -var="supabase_url=${{ secrets.SUPABASE_URL }}" \
+            -var="supabase_key=${{ secrets.SUPABASE_KEY }}"
+
+      - name: Terraform apply
+        working-directory: infrastructure
+        run: |
+          terraform apply -auto-approve \
+            -var="supabase_url=${{ secrets.SUPABASE_URL }}" \
+            -var="supabase_key=${{ secrets.SUPABASE_KEY }}"
+
+      - name: Print outputs
+        working-directory: infrastructure
+        run: terraform output
