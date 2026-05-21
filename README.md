@@ -201,6 +201,12 @@ curl http://localhost:5002/health
 
 ---
 
+
+## Accuracy Roadmap
+
+Current: 66.7% on 9 test headlines.
+Target: 85%+ with 1000+ labeled examples per class.
+
 ## Interview Talking Points
 
 - **Why Bedrock over direct API** — enterprise pattern, AWS IAM integration, managed scaling
