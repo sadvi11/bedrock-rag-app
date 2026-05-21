@@ -257,6 +257,16 @@ bedrock-rag-app/
 
 ![Bedrock Playground](screenshots/bedrock-playground.png)
 
+
+## SmartMoney Canada — Real Use Case
+
+Upload a mortgage disclosure document and ask:
+> *"What is my total interest cost over 25 years at 5.5% rate?"*
+
+The app retrieves the relevant clauses and answers using Claude Haiku 4.5 — grounded in your actual document, not general knowledge.
+
+This is the SmartMoney Canada mission: making financial documents accessible to everyday Canadians.
+
 ## Author
 
 **Sadhvi Sharma** — Cloud & AI Engineer
