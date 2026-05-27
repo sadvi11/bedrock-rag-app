@@ -293,3 +293,8 @@ The app retrieves relevant sections and answers:
 - Net income $3.6 billion Q1 2024
 
 Powered by AWS Bedrock Titan V2 + Claude Haiku 4.5 — answers grounded in the actual document, not hallucinated.
+
+## Accuracy Improvement Roadmap
+- [ ] Add more financial documents for testing
+- [ ] Implement re-ranking for better retrieval
+- [ ] Add evaluation metrics (RAGAS framework)
