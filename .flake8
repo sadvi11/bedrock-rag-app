@@ -1,5 +1,11 @@
 [flake8]
 max-line-length = 100
-exclude = venv,.git,__pycache__,lambda_build,infrastructure,lambda,.env
-per-file-ignores =
-    tests/*.py: F401
+exclude = 
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    build,
+    dist,
+    *.egg-info
+ignore = E203, W503
