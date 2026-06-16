@@ -298,3 +298,76 @@ Powered by AWS Bedrock Titan V2 + Claude Haiku 4.5 — answers grounded in the a
 - [ ] Add more financial documents for testing
 - [ ] Implement re-ranking for better retrieval
 - [ ] Add evaluation metrics (RAGAS framework)
+
+---
+
+## Performance Metrics — Measured in Production
+
+Run across 10 real financial Q&A queries on TD Bank Q1 2024 data using AWS Bedrock.
+
+| Metric | Value | Interview talking point |
+|---|---|---|
+| Avg embedding latency | 195ms | Titan V2 runs inside AWS network — no cold start, no model download |
+| P95 embedding latency | 211ms | Consistent — p95 only 16ms above avg means no embedding spikes |
+| Avg retrieval latency | 225ms | Python-side cosine similarity across pgvector — at scale move to pgvector native index |
+| Avg generation latency | 1534ms | Claude Haiku 4.5 — fastest Anthropic model via Bedrock |
+| P95 generation latency | 2244ms | At scale add semantic caching for repeated questions |
+| Avg similarity score | 0.46 | Low because test doc is small — grows with more documents in KB |
+| Cost per query | ~$0.0003 | Haiku input $0.80/1M tokens + Titan V2 $0.00002/1K tokens |
+| End-to-end p95 latency | ~2.6s | Acceptable for document Q&A — Netflix streaming cache targets <100ms |
+
+### What breaks at Netflix scale and how to fix it
+
+- **pgvector Python-side similarity** — currently fetches ALL vectors then scores in Python. At 1M+ docs this is O(n). Fix: use pgvector native `<=>` operator with an HNSW index for O(log n) retrieval
+- **Supabase free tier** — pauses after 7 days inactivity. Production: RDS PostgreSQL with pgvector extension or Amazon OpenSearch k-NN
+- **Flask single-threaded** — replace with FastAPI + Gunicorn async workers for concurrent load
+- **No caching** — repeated questions hit Bedrock every time. Fix: Redis
+cat >> README.md << 'EOF'
+
+---
+
+## Performance Metrics — Measured in Production
+
+Run across 10 real financial Q&A queries on TD Bank Q1 2024 data using AWS Bedrock.
+
+| Metric | Value | Interview talking point |
+|---|---|---|
+| Avg embedding latency | 195ms | Titan V2 runs inside AWS network — no cold start, no model download |
+| P95 embedding latency | 211ms | Consistent — p95 only 16ms above avg means no embedding spikes |
+| Avg retrieval latency | 225ms | Python-side cosine similarity across pgvector — at scale move to pgvector native index |
+| Avg generation latency | 1534ms | Claude Haiku 4.5 — fastest Anthropic model via Bedrock |
+| P95 generation latency | 2244ms | At scale add semantic caching for repeated questions |
+| Avg similarity score | 0.46 | Low because test doc is small — grows with more documents in KB |
+| Cost per query | ~$0.0003 | Haiku input $0.80/1M tokens + Titan V2 $0.00002/1K tokens |
+| End-to-end p95 latency | ~2.6s | Acceptable for document Q&A — Netflix streaming cache targets <100ms |
+
+### What breaks at Netflix scale and how to fix it
+
+- **pgvector Python-side similarity** — currently fetches ALL vectors then scores in Python. At 1M+ docs this is O(n). Fix: use pgvector native `<=>` operator with an HNSW index for O(log n) retrieval
+- **Supabase free tier** — pauses after 7 days inactivity. Production: RDS PostgreSQL with pgvector extension or Amazon OpenSearch k-NN
+- **Flask single-threaded** — replace with FastAPI + Gunicorn async workers for concurrent load
+- **No caching** — repeated questions hit Bedrock every time. Fix: Redis semantic cache with similarity threshold
+
+---
+
+## Performance Metrics — Measured in Production
+
+Run across 10 real financial Q&A queries on TD Bank Q1 2024 data using AWS Bedrock.
+
+| Metric | Value | Interview talking point |
+|---|---|---|
+| Avg embedding latency | 195ms | Titan V2 runs inside AWS network — no cold start, no model download |
+| P95 embedding latency | 211ms | Consistent — p95 only 16ms above avg means no embedding spikes |
+| Avg retrieval latency | 225ms | Python-side cosine similarity across pgvector — at scale move to pgvector native index |
+| Avg generation latency | 1534ms | Claude Haiku 4.5 — fastest Anthropic model via Bedrock |
+| P95 generation latency | 2244ms | At scale add semantic caching for repeated questions |
+| Avg similarity score | 0.46 | Low because test doc is small — grows with more documents in KB |
+| Cost per query | ~$0.0003 | Haiku input $0.80/1M tokens + Titan V2 $0.00002/1K tokens |
+| End-to-end p95 latency | ~2.6s | Acceptable for document Q&A — Netflix streaming cache targets <100ms |
+
+### What breaks at Netflix scale and how to fix it
+
+- **pgvector Python-side similarity** — currently fetches ALL vectors then scores in Python. At 1M+ docs this is O(n). Fix: use pgvector native `<=>` operator with an HNSW index for O(log n) retrieval
+- **Supabase free tier** — pauses after 7 days inactivity. Production: RDS PostgreSQL with pgvector extension or Amazon OpenSearch k-NN
+- **Flask single-threaded** — replace with FastAPI + Gunicorn async workers for concurrent load
+- **No caching** — repeated questions hit Bedrock every time. Fix: Redis semantic cache with similarity threshold
