@@ -1,6 +1,8 @@
 # Bedrock Financial RAG — AWS Bedrock + Claude Haiku 4.5
 
-> Production-grade Financial Document Q&A powered by AWS Bedrock — upload financial reports, ask plain English questions, get instant answers grounded in your documents.
+> **🟢 Live Demo:** https://bedrock-rag-app.onrender.com
+>
+> Production-grade Financial Document Q> Production-grade Financial Document Q&AA powered by AWS Bedrock — upload financial reports, ask plain English questions, get instant answers grounded in your documents.
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python)](https://python.org)
 [![AWS Bedrock](https://img.shields.io/badge/AWS_Bedrock-Titan_V2_%2B_Claude_Haiku_4.5-FF9900?logo=amazon-aws)](https://aws.amazon.com/bedrock)
