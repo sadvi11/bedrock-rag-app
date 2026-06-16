@@ -278,3 +278,22 @@ if __name__ == "__main__":
     logger.info("Starting Bedrock RAG Server v2.0")
     logger.info(f"AWS Region: {Config.BEDROCK_REGION}")
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5002)), debug=Config.DEBUG, threaded=True)
+
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({
+        "service": "Bedrock Financial RAG API",
+        "version": "2.0.0",
+        "live_demo": "https://bedrock-rag-app.onrender.com",
+        "github": "https://github.com/sadvi11/bedrock-rag-app",
+        "built_by": "Sadhvi Sharma — Nokia 5G → Cloud & AI Engineer",
+        "endpoints": {
+            "health": "GET /health",
+            "upload": "POST /upload",
+            "chat": "POST /chat",
+            "documents": "GET /documents",
+            "metrics": "GET /metrics"
+        },
+        "stack": "AWS Bedrock Titan V2 + Claude Haiku 4.5 + pgvector + Flask",
+        "try_it": "POST /chat with {question: 'What is TD Bank dividend?'}"
+    }), 200
