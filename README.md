@@ -1,62 +1,93 @@
-# Bedrock Financial RAG — AWS Bedrock + Claude Haiku 4.5
-
-> **🟢 Live Demo:** https://bedrock-rag-app.onrender.com
->
-> Production-grade Financial Document Q> Production-grade Financial Document Q&AA powered by AWS Bedrock — upload financial reports, ask plain English questions, get instant answers grounded in your documents.
+# Bedrock Financial RAG — SmartMoney Canada
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python)](https://python.org)
 [![AWS Bedrock](https://img.shields.io/badge/AWS_Bedrock-Titan_V2_%2B_Claude_Haiku_4.5-FF9900?logo=amazon-aws)](https://aws.amazon.com/bedrock)
 [![Flask](https://img.shields.io/badge/Flask-REST_API-000000?logo=flask)](https://flask.palletsprojects.com)
 [![Supabase](https://img.shields.io/badge/Supabase-pgvector_1024_dim-3ECF8E?logo=supabase)](https://supabase.com)
 [![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?logo=terraform)](https://terraform.io)
-[![Status](https://img.shields.io/badge/Status-Deployed_%26_Verified-2ea44f)]()
+[![Status](https://img.shields.io/badge/Status-Deployed_%26_Verified-2ea44f)](https://github.com/sadvi11/bedrock-rag-app)
 
 ---
 
-## What This Project Does
+## Why I Built This
 
-A production RAG (Retrieval Augmented Generation) pipeline for financial documents — built entirely on AWS Bedrock managed services. Upload any financial report (annual report, earnings statement, budget document) and ask plain English questions. The system finds the most relevant sections and generates accurate, grounded answers using Claude Haiku 4.5.
+I sit with people — newcomers to Canada, working professionals, small business owners
+— and walk them through exactly how to save taxes and build wealth in Canada.
 
-**Business value:** Makes financial documents accessible to everyday Canadians — the SmartMoney Canada mission.
+Every session, the same problem comes up.
+
+The advice exists. TFSA vs RRSP strategy, FHSA for first-time buyers, tax write-offs
+for the self-employed, wealth building from a $60k salary — all of this is knowable.
+But it is locked behind expensive advisors, buried in CRA documents nobody reads,
+or drowned out by generic American financial content that does not apply here.
+
+Most Canadians overpay taxes every year. Not because they are bad with money.
+Because nobody ever sat down and showed them the plan.
+
+I do that in person. This project scales it.
+
+SmartMoney Canada is the platform. This RAG system is the AI layer underneath it —
+it reads verified Canadian financial content and answers specific questions
+grounded in real Canadian tax rules. Not hallucinated. Not generic. Not American.
+
+**If I can only sit with one person at a time, this system can answer a thousand.**
+
+---
+
+## What This Does
+
+Upload any Canadian financial document — tax guide, CRA publication, financial plan,
+budget breakdown — and ask questions in plain English.
+
+```
+"Should I max my TFSA or RRSP first?"
+"What can I write off as a self-employed person in Canada?"
+"How does the FHSA work for a first-time buyer?"
+"How do I start building wealth on a $60k salary in Alberta?"
+```
+
+The system finds the exact relevant section from your document and generates
+an answer grounded only in that content. No hallucination. No generic advice.
+No American tax rules accidentally applied to a Canadian situation.
 
 ---
 
 ## Architecture
 
 ```
-                        USER QUESTION
-                             │
-                    ┌────────▼────────┐
-                    │   Flask API     │
-                    │  /upload        │
-                    │  /chat          │
-                    │  /documents     │
-                    │  /health        │
-                    └────────┬────────┘
-                             │
-              ┌──────────────▼──────────────┐
-              │         RAG Pipeline        │
-              │                             │
-              │  1. Embed query (Titan V2)  │
-              │  2. Cosine similarity search│
-              │  3. Retrieve top-4 chunks   │
-              │  4. Generate with Claude    │
-              └──┬──────────┬──────────┬───┘
-                 │          │          │
-        ┌────────▼──┐ ┌─────▼──┐ ┌────▼──────────────┐
-        │  Bedrock  │ │ Bedrock│ │  Supabase         │
-        │  Titan V2 │ │ Claude │ │  pgvector         │
-        │ Embeddings│ │Haiku4.5│ │  1024-dim vectors │
-        │ 1024-dim  │ │via AWS │ │  financial_docs   │
-        └───────────┘ └────────┘ └───────────────────┘
-                 │
-        ┌────────▼──────────────┐
-        │  AWS Infrastructure   │
-        │  S3 (doc storage)     │
-        │  Lambda (S3 trigger)  │
-        │  CloudWatch (monitor) │
-        │  IAM (least privilege)│
-        └───────────────────────┘
+                USER QUESTION
+                     │
+            ┌────────▼────────┐
+            │   Flask API     │
+            │  /upload        │
+            │  /chat          │
+            │  /documents     │
+            │  /health        │
+            └────────┬────────┘
+                     │
+      ┌──────────────▼──────────────┐
+      │         RAG Pipeline        │
+      │                             │
+      │  1. Embed query (Titan V2)  │
+      │  2. Cosine similarity search│
+      │  3. Retrieve top-4 chunks   │
+      │  4. Generate with Claude    │
+      └──┬──────────┬──────────┬───┘
+         │          │          │
+┌────────▼──┐ ┌─────▼──┐ ┌────▼──────────────┐
+│  Bedrock  │ │Bedrock │ │  Supabase         │
+│  Titan V2 │ │ Claude │ │  pgvector         │
+│ Embeddings│ │Haiku4.5│ │  1024-dim vectors │
+│ 1024-dim  │ │via AWS │ │  financial_docs   │
+└───────────┘ └────────┘ └───────────────────┘
+         │
+┌────────▼──────────────┐
+│  AWS Infrastructure   │
+│  S3 (doc storage)     │
+│  Lambda (S3 trigger)  │
+│  CloudWatch (monitor) │
+│  IAM (least privilege)│
+└───────────────────────┘
 ```
 
 ---
@@ -65,11 +96,11 @@ A production RAG (Retrieval Augmented Generation) pipeline for financial documen
 
 | Nokia 5G Function | AWS Bedrock Equivalent | Purpose |
 |---|---|---|
-| AMF (Access & Mobility) | Flask API + RAG Pipeline | Decision-making — routes requests to right service |
-| UDM (User Data Management) | Supabase pgvector | Persistent vector storage and retrieval |
-| CBIS (OpenStack private cloud) | AWS Bedrock managed service | Managed infrastructure — no servers to manage |
-| CBAM (VNF orchestration) | Lambda + S3 trigger | Event-driven document processing automation |
-| Subscriber dimensioning | Titan Embeddings V2 | Translate content into 1024-dim vector space |
+| AMF (Access & Mobility) | Flask API + RAG Pipeline | Routes requests to right service |
+| UDM (User Data Management) | Supabase pgvector | Persistent vector storage |
+| CBIS (OpenStack private cloud) | AWS Bedrock managed service | Managed infra — no servers to manage |
+| CBAM (VNF orchestration) | Lambda + S3 trigger | Event-driven document processing |
+| Subscriber dimensioning | Titan Embeddings V2 | Translate content into 1024-dim vectors |
 | OAM monitoring | CloudWatch + Lambda logs | Operational monitoring and alerting |
 | Nokia Repository Function | IAM least-privilege roles | Resource governance and access control |
 
@@ -79,13 +110,13 @@ A production RAG (Retrieval Augmented Generation) pipeline for financial documen
 
 | Component | Technology | Purpose |
 |---|---|---|
-| Embedding Model | Amazon Titan Embeddings V2 (1024-dim) | Converts financial text to semantic vectors via AWS Bedrock |
+| Embedding Model | Amazon Titan Embeddings V2 (1024-dim) | Converts financial text to semantic vectors |
 | Generation Model | Claude Haiku 4.5 via AWS Bedrock | Answers questions grounded in retrieved context |
 | Vector Store | Supabase pgvector (1024-dim) | Stores and searches document embeddings |
 | Document Storage | AWS S3 | Stores uploaded financial documents |
 | Processing | AWS Lambda (S3 trigger) | Serverless document ingestion pipeline |
-| Infrastructure | Terraform IaC | S3 + Lambda + IAM + CloudWatch provisioned as code |
-| CI/CD | GitHub Actions | Lint → test → Lambda package build → Terraform deploy |
+| Infrastructure | Terraform IaC | S3 + Lambda + IAM + CloudWatch as code |
+| CI/CD | GitHub Actions | Lint → test → Lambda package → Terraform deploy |
 | API Layer | Flask REST | 4 production endpoints |
 
 ---
@@ -104,8 +135,9 @@ POST /upload                       User question
   embed each chunk                search pgvector
   (1024 dimensions)                      │
       │                            top-4 chunks
-  store in Supabase               retrieved (best: 0.789)
-  pgvector table                         │
+  store in Supabase               retrieved
+  pgvector table                  (best match: 0.789)
+                                         │
                                   inject into Claude
                                   system prompt
                                          │
@@ -119,16 +151,30 @@ POST /upload                       User question
 ## Key Design Decisions
 
 **Why AWS Bedrock instead of Anthropic direct API?**
-AWS Bedrock is the enterprise deployment pattern — managed scaling, AWS IAM integration, no API key management, usage tracked in AWS billing. Companies building production AI on AWS use Bedrock. Direct API is for prototypes; Bedrock is for production.
+AWS Bedrock is the enterprise deployment pattern — managed scaling, AWS IAM integration,
+no API key management, usage tracked in AWS billing. Direct API is for prototypes.
+Bedrock is for production. Financial advice tooling needs production-grade reliability.
 
-**Why Titan Embeddings V2 (1024-dim) instead of sentence-transformers?**
-Titan V2 runs on AWS infrastructure — same network as your S3 and Lambda. No model download, no local compute, scales automatically. Also supports 256/512/1024 dimensions — 1024 chosen for best semantic accuracy on financial terminology.
+**Why Titan Embeddings V2 (1024-dim)?**
+Runs on AWS infrastructure — same network as S3 and Lambda.
+No model download, no local compute, scales automatically.
+1024 dimensions chosen for best semantic accuracy on Canadian financial terminology.
 
 **Why pgvector over Amazon OpenSearch Serverless?**
-pgvector on Supabase = zero additional AWS cost, familiar PostgreSQL interface, RLS security already configured. OpenSearch Serverless costs ~$0.24/OCU-hour — for a portfolio project, pgvector is the right choice. Production at scale would use OpenSearch.
+pgvector on Supabase = zero additional AWS cost, familiar PostgreSQL interface,
+RLS security already configured. OpenSearch Serverless costs ~$0.24/OCU-hour.
+For this stage, pgvector is the right choice. Production at scale uses OpenSearch.
 
 **Why Lambda for document ingestion?**
-S3 upload → Lambda trigger = zero servers, scales to zero when idle, no cost between uploads. Exactly how Netflix encodes new content — event-driven, serverless, automatic.
+S3 upload → Lambda trigger = zero servers, scales to zero when idle, no cost between uploads.
+Event-driven, serverless, automatic — same pattern Netflix uses for content encoding.
+
+**Why RAG over fine-tuning?**
+Canadian tax rules change every year — TFSA limits, FHSA eligibility, CRA updates.
+RAG retrieves from an updatable database. Upload a new CRA document today, it is
+searchable immediately. Fine-tuning bakes knowledge permanently into model weights
+and requires expensive retraining to update. RAG is the only practical choice
+for content that changes annually.
 
 ---
 
@@ -139,12 +185,12 @@ S3 upload → Lambda trigger = zero servers, scales to zero when idle, no cost b
 git clone https://github.com/sadvi11/bedrock-rag-app.git
 cd bedrock-rag-app
 
-# Install dependencies
+# Install
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# Configure environment
+# Configure
 cp .env.example .env
 # Add: AWS credentials, Supabase URL + key
 
@@ -157,14 +203,14 @@ python app.py
 # Upload a financial document
 curl -X POST http://localhost:5002/upload \
   -H "Content-Type: application/json" \
-  -d '{"text": "Apple Q3 2024 Revenue: $85.8 billion...", "source": "apple-q3.txt"}'
+  -d '{"text": "TFSA 2024 contribution limit is $7,000...", "source": "cra-tfsa-guide.txt"}'
 
 # Ask a question
 curl -X POST http://localhost:5002/chat \
   -H "Content-Type: application/json" \
-  -d '{"question": "What was Apple iPhone revenue?"}'
+  -d '{"question": "How much can I contribute to my TFSA in 2024?"}'
 
-# Check health
+# Health check
 curl http://localhost:5002/health
 ```
 
@@ -174,7 +220,7 @@ curl http://localhost:5002/health
 
 | Endpoint | Method | Description |
 |---|---|---|
-| `/upload` | POST | Upload financial document → chunk → embed → store |
+| `/upload` | POST | Upload document → chunk → embed → store |
 | `/chat` | POST | Ask question → RAG retrieval → Claude answer |
 | `/documents` | GET | List all documents in knowledge base |
 | `/health` | GET | Service health + model info + document count |
@@ -183,10 +229,10 @@ curl http://localhost:5002/health
 
 ## Security Design
 
-- **IAM least privilege** — Lambda role has only Bedrock InvokeModel + S3 read permissions
+- **IAM least privilege** — Lambda role has only Bedrock InvokeModel + S3 read
 - **S3 encryption** — AES-256 server-side encryption on all documents
 - **Private S3 bucket** — all public access blocked
-- **Supabase RLS** — Row Level Security enabled on financial_documents table
+- **Supabase RLS** — Row Level Security on financial_documents table
 - **No hardcoded credentials** — all secrets via environment variables
 
 ---
@@ -199,24 +245,20 @@ curl http://localhost:5002/health
 | `screenshots/chat-answer.png` | Full RAG pipeline — correct financial answer from document |
 | `screenshots/terminal-logs.png` | 1024-dim embeddings + 0.789 similarity score |
 | `screenshots/supabase-financial-documents.png` | Vectors stored in pgvector |
-| `screenshots/bedrock-playground.png` | Claude Haiku 4.5 working in AWS Bedrock |
+| `screenshots/bedrock-playground.png` | Claude Haiku 4.5 in AWS Bedrock |
 
 ---
 
-
-## Accuracy Roadmap
-
-Current: 66.7% on 9 test headlines.
-Target: 85%+ with 1000+ labeled examples per class.
-
 ## Interview Talking Points
 
-- **Why Bedrock over direct API** — enterprise pattern, AWS IAM integration, managed scaling
-- **RAG vs fine-tuning** — RAG retrieves dynamically from updatable database; fine-tuning bakes knowledge permanently
-- **Titan Embeddings V2** — 1024-dim, normalized vectors, same AWS network as compute
-- **pgvector cosine similarity** — dot product of normalized vectors = cosine distance
-- **Lambda trigger pattern** — same as Netflix encoding pipeline; event-driven, zero idle cost
-- **Nokia bridge** — CBIS (OpenStack) → AWS Bedrock managed infra; CBAM orchestration → Lambda event triggers
+- **The real problem** — I advise Canadians on tax saving and wealth building in person.
+  This system scales that advice. One session at a time becomes thousands simultaneously.
+- **Why RAG not fine-tuning** — Canadian tax rules change annually. RAG retrieves from
+  an updatable database. Fine-tuning requires expensive retraining to update.
+- **Why Bedrock** — enterprise pattern, AWS IAM integration, managed scaling, no API keys
+- **Nokia bridge** — CBIS OpenStack → AWS Bedrock; CBAM orchestration → Lambda triggers
+- **Production gap I know** — next iteration adds EKS deployment, KEDA autoscaling,
+  retrieval quality monitoring in CloudWatch
 
 ---
 
@@ -242,182 +284,13 @@ bedrock-rag-app/
 
 ---
 
-
-## Verified Working
-
-**Health endpoint — Bedrock models connected:**
-
-![Health Endpoint](screenshots/health-endpoint.png)
-
-**Financial Q&A — TD Bank dividend analysis:**
-
-![Chat Answer](screenshots/chat-answer.png)
-
-**RAG pipeline logs — 1024-dim embeddings, 0.789 similarity:**
-
-![Terminal Logs](screenshots/terminal-logs.png)
-
-**Supabase pgvector — vectors stored:**
-
-![Supabase](screenshots/supabase-financial-documents.png)
-
-**AWS Bedrock Playground — Claude Haiku 4.5:**
-
-![Bedrock Playground](screenshots/bedrock-playground.png)
-
-
-## SmartMoney Canada — Real Use Case
-
-Upload a mortgage disclosure document and ask:
-> *"What is my total interest cost over 25 years at 5.5% rate?"*
-
-The app retrieves the relevant clauses and answers using Claude Haiku 4.5 — grounded in your actual document, not general knowledge.
-
-This is the SmartMoney Canada mission: making financial documents accessible to everyday Canadians.
-
 ## Author
 
 **Sadhvi Sharma** — Cloud & AI Engineer
 Nokia India (5G Packet Core) → Cloud & AI Engineering
 Calgary, AB, Canada | Permanent Resident | Open to Relocation
 
+I advise newcomers, working professionals, and small business owners on Canadian
+tax saving strategies and wealth building — and I build the technology to scale it.
+
 [LinkedIn](https://linkedin.com/in/sadhvi-sharma-5789a6249) | [GitHub](https://github.com/sadvi11) | [@smart_moneycanada](https://instagram.com/smart_moneycanada)
-
-## Example — TD Bank Dividend Analysis
-
-Upload TD Bank earnings report and ask:
-> *"Is TD Bank a good stock for dividend income?"*
-
-The app retrieves relevant sections and answers:
-- 165+ consecutive years of uninterrupted dividends
-- $1.02 per share quarterly dividend
-- 13.9% Common Equity Tier 1 ratio
-- Net income $3.6 billion Q1 2024
-
-Powered by AWS Bedrock Titan V2 + Claude Haiku 4.5 — answers grounded in the actual document, not hallucinated.
-
-## Accuracy Improvement Roadmap
-- [ ] Add more financial documents for testing
-- [ ] Implement re-ranking for better retrieval
-- [ ] Add evaluation metrics (RAGAS framework)
-
----
-
-## Performance Metrics — Measured in Production
-
-Run across 10 real financial Q&A queries on TD Bank Q1 2024 data using AWS Bedrock.
-
-| Metric | Value | Interview talking point |
-|---|---|---|
-| Avg embedding latency | 195ms | Titan V2 runs inside AWS network — no cold start, no model download |
-| P95 embedding latency | 211ms | Consistent — p95 only 16ms above avg means no embedding spikes |
-| Avg retrieval latency | 225ms | Python-side cosine similarity across pgvector — at scale move to pgvector native index |
-| Avg generation latency | 1534ms | Claude Haiku 4.5 — fastest Anthropic model via Bedrock |
-| P95 generation latency | 2244ms | At scale add semantic caching for repeated questions |
-| Avg similarity score | 0.46 | Low because test doc is small — grows with more documents in KB |
-| Cost per query | ~$0.0003 | Haiku input $0.80/1M tokens + Titan V2 $0.00002/1K tokens |
-| End-to-end p95 latency | ~2.6s | Acceptable for document Q&A — Netflix streaming cache targets <100ms |
-
-### What breaks at Netflix scale and how to fix it
-
-- **pgvector Python-side similarity** — currently fetches ALL vectors then scores in Python. At 1M+ docs this is O(n). Fix: use pgvector native `<=>` operator with an HNSW index for O(log n) retrieval
-- **Supabase free tier** — pauses after 7 days inactivity. Production: RDS PostgreSQL with pgvector extension or Amazon OpenSearch k-NN
-- **Flask single-threaded** — replace with FastAPI + Gunicorn async workers for concurrent load
-- **No caching** — repeated questions hit Bedrock every time. Fix: Redis
-cat >> README.md << 'EOF'
-
----
-
-## Performance Metrics — Measured in Production
-
-Run across 10 real financial Q&A queries on TD Bank Q1 2024 data using AWS Bedrock.
-
-| Metric | Value | Interview talking point |
-|---|---|---|
-| Avg embedding latency | 195ms | Titan V2 runs inside AWS network — no cold start, no model download |
-| P95 embedding latency | 211ms | Consistent — p95 only 16ms above avg means no embedding spikes |
-| Avg retrieval latency | 225ms | Python-side cosine similarity across pgvector — at scale move to pgvector native index |
-| Avg generation latency | 1534ms | Claude Haiku 4.5 — fastest Anthropic model via Bedrock |
-| P95 generation latency | 2244ms | At scale add semantic caching for repeated questions |
-| Avg similarity score | 0.46 | Low because test doc is small — grows with more documents in KB |
-| Cost per query | ~$0.0003 | Haiku input $0.80/1M tokens + Titan V2 $0.00002/1K tokens |
-| End-to-end p95 latency | ~2.6s | Acceptable for document Q&A — Netflix streaming cache targets <100ms |
-
-### What breaks at Netflix scale and how to fix it
-
-- **pgvector Python-side similarity** — currently fetches ALL vectors then scores in Python. At 1M+ docs this is O(n). Fix: use pgvector native `<=>` operator with an HNSW index for O(log n) retrieval
-- **Supabase free tier** — pauses after 7 days inactivity. Production: RDS PostgreSQL with pgvector extension or Amazon OpenSearch k-NN
-- **Flask single-threaded** — replace with FastAPI + Gunicorn async workers for concurrent load
-- **No caching** — repeated questions hit Bedrock every time. Fix: Redis semantic cache with similarity threshold
-
----
-
-## Performance Metrics — Measured in Production
-
-Run across 10 real financial Q&A queries on TD Bank Q1 2024 data using AWS Bedrock.
-
-| Metric | Value | Interview talking point |
-|---|---|---|
-| Avg embedding latency | 195ms | Titan V2 runs inside AWS network — no cold start, no model download |
-| P95 embedding latency | 211ms | Consistent — p95 only 16ms above avg means no embedding spikes |
-| Avg retrieval latency | 225ms | Python-side cosine similarity across pgvector — at scale move to pgvector native index |
-| Avg generation latency | 1534ms | Claude Haiku 4.5 — fastest Anthropic model via Bedrock |
-| P95 generation latency | 2244ms | At scale add semantic caching for repeated questions |
-| Avg similarity score | 0.46 | Low because test doc is small — grows with more documents in KB |
-| Cost per query | ~$0.0003 | Haiku input $0.80/1M tokens + Titan V2 $0.00002/1K tokens |
-| End-to-end p95 latency | ~2.6s | Acceptable for document Q&A — Netflix streaming cache targets <100ms |
-
-### What breaks at Netflix scale and how to fix it
-
-- **pgvector Python-side similarity** — currently fetches ALL vectors then scores in Python. At 1M+ docs this is O(n). Fix: use pgvector native `<=>` operator with an HNSW index for O(log n) retrieval
-- **Supabase free tier** — pauses after 7 days inactivity. Production: RDS PostgreSQL with pgvector extension or Amazon OpenSearch k-NN
-- **Flask single-threaded** — replace with FastAPI + Gunicorn async workers for concurrent load
-- **No caching** — repeated questions hit Bedrock every time. Fix: Redis semantic cache with similarity threshold
-
----
-
-## Performance Metrics — Measured in Production
-
-Run across 10 real financial Q&A queries on TD Bank Q1 2024 data using AWS Bedrock.
-
-| Metric | Value | Interview talking point |
-|---|---|---|
-| Avg embedding latency | 195ms | Titan V2 runs inside AWS network — no cold start, no model download |
-| P95 embedding latency | 211ms | Consistent — p95 only 16ms above avg means no embedding spikes |
-| Avg retrieval latency | 225ms | Python-side cosine similarity across pgvector — at scale move to pgvector native index |
-| Avg generation latency | 1534ms | Claude Haiku 4.5 — fastest Anthropic model via Bedrock |
-| P95 generation latency | 2244ms | At scale add semantic caching for repeated questions |
-| Avg similarity score | 0.46 | Low because test doc is small — grows with more documents in KB |
-| Cost per query | ~$0.0003 | Haiku input $0.80/1M tokens + Titan V2 $0.00002/1K tokens |
-| End-to-end p95 latency | ~2.6s | Acceptable for document Q&A — Netflix streaming cache targets <100ms |
-
-### What breaks at Netflix scale and how to fix it
-
-- **pgvector Python-side similarity** — currently fetches ALL vectors then scores in Python. At 1M+ docs this is O(n). Fix: use pgvector native `<=>` operator with an HNSW index for O(log n) retrieval
-- **Supabase free tier** — pauses after 7 days inactivity. Production: RDS PostgreSQL with pgvector extension or Amazon OpenSearch k-NN
-- **Flask single-threaded** — replace with FastAPI + Gunicorn async workers for concurrent load
-- **No caching** — repeated questions hit Bedrock every time. Fix: Redis semantic cache with similarity threshold
-
----
-
-## Performance Metrics — Measured in Production
-
-Run across 10 real financial Q&A queries on TD Bank Q1 2024 data using AWS Bedrock.
-
-| Metric | Value | Interview talking point |
-|---|---|---|
-| Avg embedding latency | 195ms | Titan V2 runs inside AWS network — no cold start, no model download |
-| P95 embedding latency | 211ms | Consistent — p95 only 16ms above avg means no embedding spikes |
-| Avg retrieval latency | 225ms | Python-side cosine similarity across pgvector — at scale move to pgvector native index |
-| Avg generation latency | 1534ms | Claude Haiku 4.5 — fastest Anthropic model via Bedrock |
-| P95 generation latency | 2244ms | At scale add semantic caching for repeated questions |
-| Avg similarity score | 0.46 | Low because test doc is small — grows with more documents in KB |
-| Cost per query | ~$0.0003 | Haiku input $0.80/1M tokens + Titan V2 $0.00002/1K tokens |
-| End-to-end p95 latency | ~2.6s | Acceptable for document Q&A — Netflix streaming cache targets <100ms |
-
-### What breaks at Netflix scale and how to fix it
-
-- **pgvector Python-side similarity** — currently fetches ALL vectors then scores in Python. At 1M+ docs this is O(n). Fix: use pgvector native `<=>` operator with an HNSW index for O(log n) retrieval
-- **Supabase free tier** — pauses after 7 days inactivity. Production: RDS PostgreSQL with pgvector extension or Amazon OpenSearch k-NN
-- **Flask single-threaded** — replace with FastAPI + Gunicorn async workers for concurrent load
-- **No caching** — repeated questions hit Bedrock every time. Fix: Redis semantic cache with similarity threshold

@@ -6,13 +6,19 @@
 
 ## Why I Built This Project
 
-Canada has a financial literacy problem.
+I sit with people — newcomers to Canada, working professionals, small business owners — and walk them through exactly how to save taxes and build wealth in Canada.
 
-The average Canadian receives a 200-page annual report, a 40-page insurance policy, or a multi-page mortgage document — and cannot understand it. The language is dense, the numbers are buried, and the structure assumes a finance degree.
+Every session, I see the same pattern. The advice exists. TFSA vs RRSP strategy, FHSA for first-time buyers, tax write-offs for the self-employed, wealth building from a $60k salary — all of this is knowable. But most Canadians never access it. Professional financial advice costs $200-500 per hour. CRA documents are buried in government language. And most online content is American — the wrong tax rules for the wrong country.
 
-SmartMoney Canada (@smart_moneycanada, 100K+ views) exists to fix this. This project is the technical foundation of that mission — upload any financial document, ask a plain English question, get a clear answer grounded in the document itself.
+So people overpay taxes every year. Not because they are bad with money. Because nobody showed them the plan.
 
-The secondary reason: every cloud + AI role in Canada asks about AWS Bedrock. Building a real working Bedrock project — not a tutorial, not a clone, a production RAG pipeline — is the fastest way to prove hands-on experience that most candidates only claim.
+I do that in person. I sit down, I look at their actual situation, and I give them an exact plan — not generic advice. This project is built to scale that.
+
+SmartMoney Canada (@smart_moneycanada) is the platform. This RAG system is the AI layer underneath it — it reads verified Canadian financial content and answers specific questions grounded in real Canadian tax rules. Not hallucinated. Not generic. Not American.
+
+If I can only sit with one person at a time, this system can answer a thousand.
+
+The secondary reason: every cloud and AI role in Canada asks about AWS Bedrock. Building a real working Bedrock project — not a tutorial, not a clone, a production RAG pipeline — is the fastest way to prove hands-on experience that most candidates only claim.
 
 ---
 
@@ -49,15 +55,15 @@ The honest answer: pgvector was chosen because it costs nothing and demonstrates
 
 ---
 
-## Why Financial Documents as the Use Case
+## Why Canadian Tax and Wealth Content as the Use Case
 
 Three reasons:
 
-**It is real.** SmartMoney Canada is a real platform I run with real followers. This is not a toy use case invented to have something to demo — it is a genuine problem I am trying to solve.
+**It is real.** SmartMoney Canada is a real platform I run with real followers. I advise real people — newcomers, professionals, small business owners — on exactly this content in person. This is not a toy use case invented to have something to demo. It is a genuine problem I live every week.
 
-**It is verifiable.** When a recruiter asks "what does this do?", I can say "upload Apple's Q3 earnings report and ask what iPhone revenue was." They can test it immediately. The answer is either right or wrong. There is no ambiguity about whether the system works.
+**It must be accurate.** Financial advice cannot be wrong. A system that hallucinates tax rules causes real harm to real people. RAG — retrieving from verified content rather than generating from general knowledge — is not just a technical choice here. It is an ethical one. The system only answers from what it has been given. If the answer is not in the document, it says so.
 
-**It matches target roles.** Fintech, banking, and insurance companies in Canada — the largest employers of cloud and AI engineers — immediately understand why financial document intelligence matters. The use case is their use case.
+**It matches target roles.** Fintech, banking, and insurance companies in Canada — the largest employers of cloud and AI engineers — immediately understand why financial content intelligence matters. The use case is their use case.
 
 ---
 
