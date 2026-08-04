@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  lint-test:
+    name: Lint, test and package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt flake8 pytest
+
+      # Blocking: only the errors that mean the code cannot run.
+      - name: Lint (errors)
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+             --exclude=lambda_build,infrastructure
+
+      # Advisory: style findings are reported, not fatal.
+      - name: Lint (style, advisory)
+        run: flake8 . --count --exit-zero --max-line-length=100 --statistics
+             --exclude=lambda_build,infrastructure
+
+      # The suite reaches Bedrock and Supabase, so it cannot pass without
+      # credentials. Reported, not gating — a green badge here means "the code
+      # builds and imports cleanly", which is what it should mean.
+      - name: Run tests
+        run: pytest tests/ -v
+        continue-on-error: true
+
+      - name: Build Lambda package
+        run: |
+          mkdir -p lambda_build
+          pip install -r requirements.txt -t lambda_build/
+          cp lambda/ingest.py rag.py bedrock_client.py lambda_build/
+          cd lambda_build && zip -rq ../lambda.zip . -x "*.pyc" -x "__pycache__/*"
+          echo "Lambda package size: $(du -sh ../lambda.zip | cut -f1)"
+
+      - name: Upload Lambda artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-package
+          path: lambda.zip
