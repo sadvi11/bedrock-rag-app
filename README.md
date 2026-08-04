@@ -249,7 +249,7 @@ curl http://localhost:5002/health
 
 ---
 
-## Interview Talking Points
+## Design Decisions
 
 - **The real problem** — I advise Canadians on tax saving and wealth building in person.
   This system scales that advice. One session at a time becomes thousands simultaneously.
