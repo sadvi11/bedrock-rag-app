@@ -1,11 +1,25 @@
 # Bedrock Financial RAG — SmartMoney Canada
 
-[![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python)](https://python.org)
-[![AWS Bedrock](https://img.shields.io/badge/AWS_Bedrock-Titan_V2_%2B_Claude_Haiku_4.5-FF9900?logo=amazon-aws)](https://aws.amazon.com/bedrock)
-[![Flask](https://img.shields.io/badge/Flask-REST_API-000000?logo=flask)](https://flask.palletsprojects.com)
-[![Supabase](https://img.shields.io/badge/Supabase-pgvector_1024_dim-3ECF8E?logo=supabase)](https://supabase.com)
-[![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?logo=terraform)](https://terraform.io)
-[![Status](https://img.shields.io/badge/Status-Deployed_%26_Verified-2ea44f)](https://github.com/sadvi11/bedrock-rag-app)
+**Ask a question about Canadian tax rules, get an answer grounded in the source document — not a plausible guess.**
+
+[![CI](https://github.com/sadvi11/bedrock-rag-app/actions/workflows/ci.yml/badge.svg)](https://github.com/sadvi11/bedrock-rag-app/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://python.org)
+[![AWS Bedrock](https://img.shields.io/badge/AWS_Bedrock-Titan_V2%20%2B%20Claude-FF9900?logo=amazonaws&logoColor=white)](https://aws.amazon.com/bedrock)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+<!-- DEMO SLOT — replace this comment with the demo GIF once recorded:
+     ![Demo](docs/demo.gif)
+     Should show (~15s): type a Canadian tax question, then the answer appearing WITH
+     the retrieved source chunk visible alongside it. Grounding is the entire claim of
+     this project — the GIF has to show the retrieval, not just the answer. -->
+
+| | |
+|---|---|
+| **Stack** | AWS Bedrock (Titan Embeddings V2, Claude) · pgvector on Supabase · Flask · Terraform |
+| **Pattern** | Chunk → embed → vector search → context injection → grounded generation |
+| **Why Bedrock** | Runs inside the IAM, VPC and CloudTrail boundary an enterprise already has |
+
+---
 
 ---
 
