@@ -31,7 +31,7 @@ AWS Bedrock is how enterprises actually deploy AI. When a Canadian bank, insuran
 Direct Anthropic API: right for prototypes and startups.
 AWS Bedrock: right for production enterprise workloads.
 
-A candidate who has only used the direct API tells a recruiter they understand AI. A candidate who has used Bedrock tells a recruiter they understand enterprise AI on AWS — which is a different, more valuable thing.
+Using the direct API teaches you the model. Using Bedrock teaches you what it takes to run a model inside an organisation's existing security and compliance boundary — which is the harder and less transferable half.
 
 ---
 
@@ -63,7 +63,7 @@ Three reasons:
 
 **It must be accurate.** Financial advice cannot be wrong. A system that hallucinates tax rules causes real harm to real people. RAG — retrieving from verified content rather than generating from general knowledge — is not just a technical choice here. It is an ethical one. The system only answers from what it has been given. If the answer is not in the document, it says so.
 
-**It matches target roles.** Fintech, banking, and insurance companies in Canada — the largest employers of cloud and AI engineers — immediately understand why financial content intelligence matters. The use case is their use case.
+**The domain is one where grounding actually matters.** Financial guidance is regulated, jurisdiction-specific and consequential when wrong. A confidently incorrect answer about contribution limits is worse than no answer, which makes it a genuine test of whether retrieval grounding works rather than a demonstration that it exists.
 
 ---
 
