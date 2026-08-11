@@ -154,7 +154,7 @@ class RAGPipeline:
                     "Please upload documents first via POST /upload."
                 ),
                 "sources": [],
-                "model": "claude-3-haiku via AWS Bedrock",
+                "model": f"{BedrockClient.LLM_MODEL} via AWS Bedrock",
             }
 
         answer = self.bedrock.generate(question, context)
@@ -162,7 +162,7 @@ class RAGPipeline:
         return {
             "answer": answer,
             "sources": sources,
-            "model": "claude-3-haiku via AWS Bedrock",
+            "model": f"{BedrockClient.LLM_MODEL} via AWS Bedrock",
             "embedding_model": "amazon.titan-embed-text-v2",
         }
 

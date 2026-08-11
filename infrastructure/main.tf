@@ -13,10 +13,10 @@ provider "aws" {
 
 # ── Variables ─────────────────────────────────────────────────────────────────
 
-variable "aws_region"    { default = "us-east-1" }
-variable "project_name"  { default = "bedrock-rag-app" }
-variable "supabase_url"  { sensitive = true }
-variable "supabase_key"  { sensitive = true }
+variable "aws_region" { default = "us-east-1" }
+variable "project_name" { default = "bedrock-rag-app" }
+variable "supabase_url" { sensitive = true }
+variable "supabase_key" { sensitive = true }
 
 data "aws_caller_identity" "current" {}
 
@@ -76,9 +76,19 @@ resource "aws_iam_policy" "lambda_policy" {
           "bedrock:InvokeModel",
           "bedrock:InvokeModelWithResponseStream"
         ]
+        # The application invokes claude-haiku-4-5 through a cross-region
+        # inference profile (the "us." prefix on the model ID). That requires
+        # BOTH the inference-profile ARN and the underlying foundation-model
+        # ARNs in every region the profile can route to -- granting only the
+        # profile returns AccessDeniedException on the first call.
+        #
+        # This policy previously granted claude-3-haiku-20240307, which the
+        # code has not invoked since it moved to haiku-4-5: deploying it made
+        # every generation request fail with AccessDeniedException.
         Resource = [
           "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.titan-embed-text-v2:0",
-          "arn:aws:bedrock:${var.aws_region}::foundation-model/anthropic.claude-3-haiku-20240307-v1:0"
+          "arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0",
+          "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0"
         ]
       },
       {
@@ -119,8 +129,8 @@ resource "aws_lambda_function" "ingest" {
   role          = aws_iam_role.lambda_role.arn
   handler       = "ingest.handler"
   runtime       = "python3.11"
-  timeout       = 300       # 5 minutes — large documents
-  memory_size   = 512       # Titan embedding model needs headroom
+  timeout       = 300 # 5 minutes — large documents
+  memory_size   = 512 # Titan embedding model needs headroom
 
   environment {
     variables = {
