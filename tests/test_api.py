@@ -18,7 +18,7 @@ def test_health_returns_200():
 def test_health_has_service_name():
     client = get_client()
     data = json.loads(client.get("/health").data)
-    assert data["service"] == "bedrock-financial-rag"
+    assert data["service"] == "bedrock-rag-app"
 
 
 def test_chat_requires_question():

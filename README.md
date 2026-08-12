@@ -9,6 +9,35 @@
 
 ---
 
+## Try it live
+
+The service is deployed and responding:
+
+```console
+$ curl -s https://bedrock-rag-app.onrender.com/health | jq
+{
+  "service": "bedrock-rag-app",
+  "status": "healthy",
+  "version": "2.0.0",
+  "bedrock_region": "us-east-1",
+  "models": {
+    "embedding": "amazon.titan-embed-text-v2:0 (1024-dim)",
+    "generation": "anthropic.claude-haiku-4-5 via AWS Bedrock"
+  },
+  "metrics_summary": {
+    "total_queries": 0,
+    "avg_similarity_score": 0.0,
+    "p95_generation_latency_ms": 0.0,
+    "error_rate_pct": 0.0
+  }
+}
+```
+
+> Hosted on Render's free tier, so the first request after an idle period takes
+> a few seconds to wake the container.
+
+---
+
 ## Why I Built This
 
 I sit with people — newcomers to Canada, working professionals, small business owners
@@ -54,41 +83,43 @@ No American tax rules accidentally applied to a Canadian situation.
 
 ## Architecture
 
+```mermaid
+flowchart TB
+    User([User]) -->|"POST /chat"| API["Flask API<br/>app.py"]
+    User -->|"POST /upload"| API
+
+    subgraph Ingest ["Ingestion — runs once per document"]
+        PDF["pypdf<br/>text extraction"] --> CHUNK["Chunking<br/>overlapping windows"]
+        CHUNK --> EMB1["Titan Embeddings V2<br/>1024 dimensions"]
+        EMB1 --> STORE[("Supabase pgvector<br/>documents table")]
+    end
+
+    subgraph Query ["Retrieval — runs per question"]
+        EMB2["Titan Embeddings V2<br/>embed the question"]
+        SEARCH["Cosine similarity search<br/>top-k chunks"]
+        EMB2 --> SEARCH
+        STORE -.->|"vector index"| SEARCH
+    end
+
+    API -->|"upload path"| PDF
+    API -->|"query path"| EMB2
+    SEARCH -->|"retrieved context"| GEN{{"Claude Haiku 4.5<br/>via AWS Bedrock"}}
+    GEN -->|"grounded answer + sources"| API
+    API --> User
+
+    LAMBDA["Lambda<br/>lambda/ingest.py"] -.->|"batch ingestion"| PDF
+
+    style GEN fill:#D4A27F,color:#000
+    style STORE fill:#3ECF8E,color:#000
+    style EMB1 fill:#FF9900,color:#000
+    style EMB2 fill:#FF9900,color:#000
 ```
-                USER QUESTION
-                     │
-            ┌────────▼────────┐
-            │   Flask API     │
-            │  /upload        │
-            │  /chat          │
-            │  /documents     │
-            │  /health        │
-            └────────┬────────┘
-                     │
-      ┌──────────────▼──────────────┐
-      │         RAG Pipeline        │
-      │                             │
-      │  1. Embed query (Titan V2)  │
-      │  2. Cosine similarity search│
-      │  3. Retrieve top-4 chunks   │
-      │  4. Generate with Claude    │
-      └──┬──────────┬──────────┬───┘
-         │          │          │
-┌────────▼──┐ ┌─────▼──┐ ┌────▼──────────────┐
-│  Bedrock  │ │Bedrock │ │  Supabase         │
-│  Titan V2 │ │ Claude │ │  pgvector         │
-│ Embeddings│ │Haiku4.5│ │  1024-dim vectors │
-│ 1024-dim  │ │via AWS │ │  financial_docs   │
-└───────────┘ └────────┘ └───────────────────┘
-         │
-┌────────▼──────────────┐
-│  AWS Infrastructure   │
-│  S3 (doc storage)     │
-│  Lambda (S3 trigger)  │
-│  CloudWatch (monitor) │
-│  IAM (least privilege)│
-└───────────────────────┘
-```
+
+**Why the answers are grounded:** the model never sees the whole corpus. It
+sees only the chunks whose embeddings are closest to the question, so an
+answer either comes from a retrieved passage or the system reports that it has
+none. For financial figures, a confidently wrong answer is worse than no
+answer.
 
 ---
 
@@ -237,15 +268,19 @@ curl http://localhost:5002/health
 
 ---
 
-## Deployment Screenshots
+## It works — here it is working
 
-| Screenshot | What It Proves |
+| Health endpoint | RAG answer with sources |
 |---|---|
-| `screenshots/health-endpoint.png` | Service healthy, Titan V2 + Claude Haiku 4.5 connected |
-| `screenshots/chat-answer.png` | Full RAG pipeline — correct financial answer from document |
-| `screenshots/terminal-logs.png` | 1024-dim embeddings + 0.789 similarity score |
-| `screenshots/supabase-financial-documents.png` | Vectors stored in pgvector |
-| `screenshots/bedrock-playground.png` | Claude Haiku 4.5 in AWS Bedrock |
+| ![Health endpoint](screenshots/health-endpoint.png) | ![Chat answer](screenshots/chat-answer.png) |
+
+| Embeddings + similarity score | Vectors in pgvector |
+|---|---|
+| ![Terminal logs](screenshots/terminal-logs.png) | ![Supabase documents](screenshots/supabase-financial-documents.png) |
+
+| Claude Haiku 4.5 in Bedrock | Architecture |
+|---|---|
+| ![Bedrock playground](screenshots/bedrock-playground.png) | ![Architecture](screenshots/architecture.png) |
 
 ---
 

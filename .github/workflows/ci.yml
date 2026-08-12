@@ -34,12 +34,14 @@ jobs:
         run: flake8 . --count --exit-zero --max-line-length=100 --statistics
              --exclude=lambda_build,infrastructure
 
-      # The suite reaches Bedrock and Supabase, so it cannot pass without
-      # credentials. Reported, not gating — a green badge here means "the code
-      # builds and imports cleanly", which is what it should mean.
+      # Gating. The earlier note here claimed the suite needed Bedrock and
+      # Supabase credentials to pass, so the step was set to
+      # continue-on-error. That was wrong: the tests mock both services and
+      # run offline. The only failure was a stale assertion, and
+      # continue-on-error hid it behind a green badge for the life of the
+      # repository. A test step that cannot fail the build is decoration.
       - name: Run tests
         run: pytest tests/ -v
-        continue-on-error: true
 
       - name: Build Lambda package
         run: |
