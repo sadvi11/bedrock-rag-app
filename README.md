@@ -1,5 +1,7 @@
 # Bedrock Financial RAG — SmartMoney Canada
 
+[![CI](https://github.com/sadvi11/bedrock-rag-app/actions/workflows/ci.yml/badge.svg)](https://github.com/sadvi11/bedrock-rag-app/actions/workflows/ci.yml)
+
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python)](https://python.org)
 [![AWS Bedrock](https://img.shields.io/badge/AWS_Bedrock-Titan_V2_%2B_Claude_Haiku_4.5-FF9900?logo=amazon-aws)](https://aws.amazon.com/bedrock)
 [![Flask](https://img.shields.io/badge/Flask-REST_API-000000?logo=flask)](https://flask.palletsprojects.com)
