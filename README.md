@@ -16,6 +16,7 @@
 The service is deployed and responding:
 
 ```console
+# Free tier: sleeps when idle, so the first request takes ~20s to wake.
 $ curl -s https://bedrock-rag-app.onrender.com/health | jq
 {
   "service": "bedrock-rag-app",
