@@ -88,16 +88,16 @@ No American tax rules accidentally applied to a Canadian situation.
 
 ```mermaid
 flowchart TB
-    User([User]) -->|"POST /chat"| API["Flask API<br/>app.py"]
+    User(["User"]) -->|"POST /chat"| API["Flask API<br/>app.py"]
     User -->|"POST /upload"| API
 
-    subgraph Ingest ["Ingestion — runs once per document"]
+    subgraph Ingest["Ingestion — runs once per document"]
         PDF["pypdf<br/>text extraction"] --> CHUNK["Chunking<br/>overlapping windows"]
         CHUNK --> EMB1["Titan Embeddings V2<br/>1024 dimensions"]
         EMB1 --> STORE[("Supabase pgvector<br/>documents table")]
     end
 
-    subgraph Query ["Retrieval — runs per question"]
+    subgraph Query["Retrieval — runs per question"]
         EMB2["Titan Embeddings V2<br/>embed the question"]
         SEARCH["Cosine similarity search<br/>top-k chunks"]
         EMB2 --> SEARCH
@@ -112,10 +112,18 @@ flowchart TB
 
     LAMBDA["Lambda<br/>lambda/ingest.py"] -.->|"batch ingestion"| PDF
 
-    style GEN fill:#D4A27F,color:#000
-    style STORE fill:#3ECF8E,color:#000
-    style EMB1 fill:#FF9900,color:#000
-    style EMB2 fill:#FF9900,color:#000
+    linkStyle default stroke:#64748b,stroke-width:1.5px
+    classDef default fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#0f172a
+    classDef aws   fill:#fff7ed,stroke:#c2410c,stroke-width:3px,color:#7c2d12
+    classDef ci    fill:#f5f3ff,stroke:#6d28d9,stroke-width:3px,color:#4c1d95
+    classDef data  fill:#ecfdf5,stroke:#047857,stroke-width:3px,color:#064e3b
+    classDef decide fill:#dbeafe,stroke:#1d4ed8,stroke-width:3px,color:#1e3a8a
+    class GEN decide
+    class STORE data
+    class EMB1,EMB2 aws
+    class LAMBDA ci
+    style Ingest fill:#f1f5f9,stroke:#475569,stroke-width:2px,color:#0f172a
+    style Query fill:#f1f5f9,stroke:#475569,stroke-width:2px,color:#0f172a
 ```
 
 **Why the answers are grounded:** the model never sees the whole corpus. It
