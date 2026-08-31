@@ -269,6 +269,32 @@ curl http://localhost:5002/health
 
 ---
 
+## Data residency — the honest position
+
+This app answers questions about **Canadian** tax rules, and it currently runs
+Bedrock inference in **`us-east-1`**. Documents you upload are sent there. Say that
+plainly rather than let a reader assume otherwise, because for anything holding real
+personal financial data it is the first question that matters.
+
+**What that means.** PIPEDA does not forbid processing outside Canada, but it does
+make the organisation accountable for comparable protection, and provincial public-
+sector rules and OSFI expectations for federally regulated institutions are stricter
+still. A demo can run in `us-east-1`. A product handling clients' CRA documents needs
+a decision on the record.
+
+**The fix, when this stops being a demo.** Amazon Bedrock supports
+[cross-Region inference from `ca-central-1`](https://aws.amazon.com/blogs/machine-learning/accelerate-generative-ai-innovation-in-canada-with-amazon-bedrock-cross-region-inference/):
+inference may execute in another Region, while **data at rest — logs, knowledge
+bases, stored configuration — stays in Canada**. The region here is already a
+variable (`AWS_REGION`, defaulting to `us-east-1`), so the change is configuration
+plus confirming each model is reachable from a Canadian inference profile.
+
+**Why it is not changed already:** switching the default without deploying and
+verifying it would replace a documented limitation with an untested claim, which is
+worse. The limitation is written down; the claim would have to be earned.
+
+---
+
 ## Security Design
 
 - **IAM least privilege** — Lambda role has only Bedrock InvokeModel + S3 read
