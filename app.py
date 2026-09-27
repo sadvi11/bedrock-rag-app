@@ -4,8 +4,6 @@ from datetime import datetime
 import os
 from functools import wraps
 import time
-import numpy as np
-import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -159,27 +157,13 @@ def chat():
         rag = get_rag()
 
         t0 = time.time()
-        query_embedding = rag.bedrock.embed(question)
+        query_embedding = rag.embed_query(question)
         embedding_ms = (time.time() - t0) * 1000
         metrics["embedding_latencies_ms"].append(embedding_ms)
 
+        # Server-side pgvector ANN search (HNSW) — no O(n) Python scan.
         t1 = time.time()
-        query_vec = np.array(query_embedding)
-        result = rag.supabase.table("financial_documents").select("content, source, embedding").execute()
-        scored = []
-        if result.data:
-            for row in result.data:
-                emb = row["embedding"]
-                if isinstance(emb, str):
-                    emb = json.loads(emb)
-                doc_vec = np.array(emb)
-                norm = np.linalg.norm(query_vec) * np.linalg.norm(doc_vec)
-                if norm == 0:
-                    continue
-                sim = float(np.dot(query_vec, doc_vec) / norm)
-                scored.append((sim, row["content"], row["source"]))
-        scored.sort(reverse=True)
-        top = scored[:rag.TOP_K]
+        top = rag.search(query_embedding)
         retrieval_ms = (time.time() - t1) * 1000
         metrics["retrieval_latencies_ms"].append(retrieval_ms)
 
