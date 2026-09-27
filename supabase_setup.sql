@@ -16,15 +16,35 @@ CREATE TABLE IF NOT EXISTS financial_documents (
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index for fast similarity search (cosine distance)
+-- Approximate-nearest-neighbour index for fast cosine similarity search.
+-- HNSW gives better recall/latency than ivfflat and needs no `lists` tuning.
 CREATE INDEX IF NOT EXISTS financial_docs_embedding_idx
     ON financial_documents
-    USING ivfflat (embedding vector_cosine_ops)
-    WITH (lists = 100);
+    USING hnsw (embedding vector_cosine_ops);
 
 -- Index for source lookups
 CREATE INDEX IF NOT EXISTS financial_docs_source_idx
     ON financial_documents (source);
+
+-- Server-side similarity search. The app calls this via supabase.rpc() so the
+-- ranking runs inside Postgres against the HNSW index instead of pulling every
+-- row to the client and scoring in Python.
+--   <=> is the pgvector cosine-distance operator; similarity = 1 - distance.
+CREATE OR REPLACE FUNCTION match_documents(
+    query_embedding VECTOR(1024),
+    match_count INT DEFAULT 4
+)
+RETURNS TABLE (content TEXT, source TEXT, similarity FLOAT)
+LANGUAGE sql STABLE
+AS $$
+    SELECT
+        content,
+        source,
+        1 - (embedding <=> query_embedding) AS similarity
+    FROM financial_documents
+    ORDER BY embedding <=> query_embedding
+    LIMIT match_count;
+$$;
 
 -- Enable Row Level Security
 ALTER TABLE financial_documents ENABLE ROW LEVEL SECURITY;

@@ -3,8 +3,8 @@ RAG Pipeline — Financial Document Intelligence
 - Chunks documents into 500-word overlapping segments
 - Embeds with Amazon Titan Embeddings V2 (via Bedrock)
 - Stores vectors in Supabase pgvector (1024 dimensions)
-- Retrieves via Python-side cosine similarity
-- Generates answers with Claude 3 Haiku via Bedrock
+- Retrieves via server-side pgvector ANN search (match_documents RPC + HNSW)
+- Generates answers with Claude Haiku 4.5 via Bedrock
 """
 
 import os
@@ -25,7 +25,7 @@ class RAGPipeline:
 
     Architecture:
     Document → Chunk → Titan Embed → pgvector store
-    Query → Titan Embed → Cosine similarity → Claude 3 Haiku → Answer
+    Query → Titan Embed → pgvector ANN search → Claude Haiku 4.5 → Answer
     """
 
     CHUNK_SIZE = 500          # words per chunk
@@ -94,37 +94,44 @@ class RAGPipeline:
 
     # ── Retrieval ─────────────────────────────────────────────────────────────
 
-    def retrieve_context(self, query: str) -> tuple[str, list[str]]:
-        """
-        Find most relevant chunks using cosine similarity.
-        Returns: formatted context string + list of source documents used.
-        """
-        query_embedding = self.bedrock.embed(query)
-        query_vec = np.array(query_embedding)
+    def embed_query(self, query: str) -> list[float]:
+        """Embed a query string into a 1024-dim Titan V2 vector."""
+        return self.bedrock.embed(query)
 
-        result = self.supabase.table(TABLE).select(
-            "content, source, embedding"
+    def search(self, query_embedding, top_k: int = None) -> list[tuple]:
+        """
+        Rank stored chunks by cosine similarity via the match_documents
+        Postgres function, which runs the search server-side against the HNSW
+        pgvector index (O(log n)) instead of pulling every row and scoring in
+        Python (O(n)). Returns (similarity, content, source) tuples, best first.
+        """
+        top_k = top_k or self.TOP_K
+        # pgvector accepts a JSON array; normalise numpy arrays to a list.
+        if isinstance(query_embedding, np.ndarray):
+            query_embedding = query_embedding.tolist()
+
+        result = self.supabase.rpc(
+            "match_documents",
+            {"query_embedding": query_embedding, "match_count": top_k},
         ).execute()
 
         if not result.data:
+            return []
+
+        return [
+            (float(row["similarity"]), row["content"], row["source"])
+            for row in result.data
+        ]
+
+    def retrieve_context(self, query: str) -> tuple[str, list[str]]:
+        """
+        Find the most relevant chunks via server-side pgvector ANN search.
+        Returns: formatted context string + list of source documents used.
+        """
+        top = self.search(self.embed_query(query))
+
+        if not top:
             return "", []
-
-        # Compute cosine similarity (Python-side — same as smart-ai-agent)
-        scored = []
-        for row in result.data:
-            emb = row["embedding"]
-            if isinstance(emb, str):
-                import json
-                emb = json.loads(emb)
-            doc_vec = np.array(emb)
-            norm_product = np.linalg.norm(query_vec) * np.linalg.norm(doc_vec)
-            if norm_product == 0:
-                continue
-            similarity = float(np.dot(query_vec, doc_vec) / norm_product)
-            scored.append((similarity, row["content"], row["source"]))
-
-        scored.sort(reverse=True)
-        top = scored[: self.TOP_K]
 
         logger.info(
             f"Retrieved {len(top)} chunks — best similarity: {top[0][0]:.3f}"
